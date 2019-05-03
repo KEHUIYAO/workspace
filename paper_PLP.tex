@@ -1,0 +1,419 @@
+
+% 3. Change the format according to journal
+%Communications in Statistics Part B: Simulation and Computation
+\documentclass[12pt]{article}
+%\usepackage[round]{natbib} %reference
+\usepackage{latexsym,epsfig,graphicx,epstopdf,amsmath,amssymb,amscd,multirow,psfrag,paralist,setspace,dsfont,float}
+\RequirePackage[colorlinks,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{siunitx} %alignment by decimal
+\usepackage[round]{natbib}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{titlesec}
+	\titleformat{\section}{\normalfont\bfseries}{\thesection.}{1em}{}
+	\titleformat{\subsection}{\normalfont\bfseries}{\thesubsection.}{0.5em}{}
+	\titleformat{\subsubsection}{\normalfont\bfseries}{\thesubsubsection.}{0.5em}{}
+
+\usepackage{caption}
+	\captionsetup[figure]{labelsep=period}
+	 \captionsetup[table]{labelsep=period}
+	\numberwithin{equation}{section}
+%%%%%%%%%%%%%%%%%%%%%
+\setlength{\oddsidemargin}{0in}
+\setlength{\evensidemargin}{0in}
+\setlength{\topmargin}{-.5in}
+\setlength{\headsep}{0in}
+\setlength{\textwidth}{6.5in}
+\setlength{\textheight}{8.5in}
+\def\refhg{\hangindent=20pt\hangafter=1}
+\def\refmark{\par\vskip 2mm\noindent\refhg}
+\def\refhg{\hangindent=20pt\hangafter=1}
+\def\refmark{\par\vskip 2mm\noindent\refhg}
+\def\refhg{\hangindent=20pt\hangafter=1}    %20pt
+\def\refhgb{\hangindent=10pt\hangafter=1}
+\def\refmark{\par\vskip 2mm\noindent\refhg}
+\renewcommand{\baselinestretch}{1.5}
+\usepackage{authblk} %author with affliations
+%%%%%%%%%%%%%%%%%%%%
+\raggedbottom
+\setlength{\abovedisplayshortskip}{1pt}
+\setlength{\belowdisplayshortskip}{1pt}
+\begin{document}
+\makeatletter
+\renewcommand{\maketitle}{\bgroup\setlength{\parindent}{0pt}
+	\begin{flushleft}
+		\textbf{\@title}\vspace{12pt}
+		
+		\@author
+	\end{flushleft}\egroup
+}
+\makeatother
+\title{Bayesian Change-Points Detection Assuming Power-Law Process in the Recurrent-Event Context}
+\author[1]{Qing Li}
+\author[2]{Lijie Liu}
+\author[2]{Tianqi Li}
+\author[2]{Kehui Yao}
+\affil[1]{\small Department of Industrial \& Manufacturing Systems Engineering, Iowa State University, Ames, IA, USA}
+\affil[2]{\small Department of Statistics, University of Wisconsin-Madison, Madison, WI, USA}
+\date{}
+\maketitle
+\stepcounter{footnote}
+\footnotetext{Address correspondence to Qing Li: Department of Industrial \& Manufacturing Systems Engineering, Iowa State University, Ames, IA, USA; 
+	\indent \ \ E-mail: qlijane@iastate.edu}
+\noindent \textbf{Abstract}
+
+\noindent This article proposes a Bayesian framework to detect the number and values of change-points in the recurrent-event context with multiple sampling units. The censoring times of the sampling units can vary.  The event counts are assumed to be a non-homogeneous Poisson process with the Weibull intensity function, that is, the power law process. We fit models with different number of change-points, use the Markov chain Monte Carlo method to sample from the posterior, and employ the Bayes factor for model selection. Simulation studies are conducted to check the estimation accuracy and the model selection performance under different scenarios. We also compare the performance of the Bayes factor and the Deviance Information Criterion in detecting the number of change-points. The simulation studies show that the parameter estimation by the proposed method is accurate, and the Bayes factor outperforms the Deviance Information Criterion in detecting the number of change-points under our simulation configurations. We analyze the coal mining disaster data in UK as a demonstration. The power law process is flexible and the framework is practically useful in many fields such as economics, environmental science, engineering and pharmaceutical studies.      
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace*{.3in}
+
+\noindent KEY WORDS: {Bayes factor, Markov chain Monte Carlo,Non-Homogeneous Poisson Process}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+Change-point detection in the recurrent-event context when each sampling unit has multiple events is of great interest in many fields. For example, the reliability of a repairable system might change due to repairs or internal failures \citep{Ruggeri2005}; the driving risk of teenage drivers change as they have more experience \citep{Li2017a}; the recurrent rate of disease episodes changes because of a treatment or treatment effects wearing out \citep{Frobish2009}. 
+
+A large part of the literature on change-point detection in the recurrent-event context assumed that the event counting process was a Poisson process with the intensity function changing over time, which was  the non-homogeneous Poisson process (NHPP) \citep[p.~32]{Ross2006}. The time points where the intensity function changes are the change-points of interest. \citet{Raftery1986,Gupta2015} proposed a Bayesian approach to detect a single change-point when the intensity function was constant piecewise and tested the change via Bayes factor (BF).  \citet{Ruggeri2005} detected the change-points of reliability in repairable systems assuming a power law process (PLP) under Bayesian framework. \citet{Achcar2007, Montoya2017} detected multiple change-points and conducted a Bayesian model selection on the number of change-points.  \citet{Frobish2009, Li2017a} detected a change-point by maximizing the likelihood for multiple individuals assuming constant piecewise intensity.  \citet{Li2017b} proposed a Bayesian finite mixture model to detect a change-point in the driving risk of teenager drivers and cluster the subjects.  \citet{Frobish2016} proposed a non-parametric estimator for a change-point without parametric assumptions on the intensity functions. \citet{Cruz2016,Achcar2016} detected change-points in environmental research assuming several forms of intensity functions and used the Deviance Information Criterion (DIC) to choose the number of change-points. 
+
+Most of the literature on change-point detection in the recurrent-event context deals with a single sampling unit. This paper addresses situations when there are multiple sampling units, especially when the observational time could be different among units. For example, the cumulative driving time during the same study period \citep{Li2017a} varied among teenage drivers;  the censoring times varied among patients, which was a typical scenario in traditional survival analysis \citep{Frobish2009}.     
+
+We conduct a Bayesian change-points analysis with multiple sampling units assuming an NHPP with a Weibull intensity function, that is, a PLP. The PLP is frequently used in reliability analysis or operating safety policy, and it is flexible in modeling the intensity function behavior \citep{Crow1975}. We use the Markov chain Monte Carlo (MCMC) method to sample from the posterior distribution. 
+
+Usually the number of change-points is unknown. \citet{Cruz2016, Achcar2016} used  DIC to determine the number of change-points. DIC is straightforward to calculate from the MCMC samples, but it tends to increasing when the number of change-points is increasing, which leads to model over fitting \citep{Ando2010}. \citet{Montoya2017} determined the number of change-points by minimizing the proposed Bayesian objective functions. \citet{Achcar2007} used the predictive density for the intervals among events and the BF to determine the number of change-points. 
+ 
+We employ the BF which is the posterior odds of the null hypothesis against the alternative when the prior probability of the null is 0.5. The BF is a widely used tool for model selection and it prefers simpler models under similar fits \citep{Kass1995}. 
+
+This article develops a Bayesian framework to detect the number and values of change-points in the recurrent-event context when there are multiple sampling units. The censoring times of the sampling units can vary.  The event counts are assumed to be a PLP with change-points. We fit models with different number of change-points, use MCMC to sample from the posterior and employ the BF for model selection. The estimation accuracy and the performance of the BF in selecting the number of change-points is examined in the simulation study.  We also compare the performance of the BF and the DIC in detecting the number of change-points.
+
+The rest of the article is organized as follows. In Section~\ref{sec:models}, we develop a multiple change-points model in the recurrent-event context with multiple sampling units. Simulation studies are in Section~\ref{sec:simulation} and a real data analysis is provided in Section~\ref{sec:data_analysis}. Section~\ref{sec:discussion} is the conclusion and discussion. %
+
+\section{Model Framework}\label{sec:models}
+In this section, we propose a Bayesian method to detect the change-points when there are multiple sampling units and the event counts are assumbed to be PLPs. We use MCMC to sample from the posterior and employ the BF to determine the number of change-points. 
+
+\subsection{The multiple change-points models assuming PLPs in the recurrent-event context}\label{sec:models.PLP}
+We assume there are $m$ sampling units and each unit has at least one event. For the unit $j$, let $n_j>0$ be the number of events, $C_j$ be the follow-up time, and  $\left\lbrace t_{j1} < \cdots<t_{ji}<\cdots<t_{jn_j}\right\rbrace $ be the ordered cumulative event times. $C_j$ will be treated as the censoring time. Denote $\left\lbrace N_{jt}: 0\leq t \leq C_j\right\rbrace $ to be the number of events till time $t$ for the unit $j$. We assume  ${N_{jt}}$ is a Poisson process with the cumulative intensity function $\Lambda_j(t;\pmb\theta)$, where $\pmb\theta$ denotes the vector of parameters. For a given $t$, ${N_{jt}}$ follows a Poisson distribution with the mean $\Lambda_j(t;\pmb\theta)$. The intensity function $\lambda_j(t;\pmb\theta)$ is the derivative of $\Lambda_j(t;\pmb\theta)$ over $t$. 
+
+Denote $\pmb X =\left\lbrace t_{j1},\cdots,t_{jn_j};C_j;j=1,\cdots,m\right\rbrace $, which includes all the event times and censoring times of the sampling units. Then the likelihood for all the sampling units is \citep{Thompson2012}:
+\begin{equation}\label{eqn:l}
+L(\pmb\theta|\pmb X) = \prod_{j=1}^{m}\left\lbrace exp\left[ -\Lambda_j(C_j;\pmb\theta)\right]\prod_{i=1}^{n_j}\lambda(t_{ji}) \right\rbrace. 
+\end{equation} 
+We further assume that the Poisson process is a PLP with the cumulative intensity function in the following form \citep{Crow1975}:
+\begin{equation}\label{eqn:Lam_j}
+\Lambda_j(t;\pmb\theta) = \left( \frac{t}{\beta}\right)^\alpha, \alpha, \beta >0, 0\leq t \leq C_j,
+\end{equation} 
+where $\pmb\theta = (\alpha, \beta)$. By taking the derivative of $\Lambda_j(t;\pmb\theta)$ over $t$, the intensity function of the PLP is as follows: 
+\begin{equation}\label{eqn:lam_j}
+\lambda_j(t;\pmb\theta) = \frac{\alpha}{\beta}\left( \frac{t}{\beta}\right)^{\alpha-1}, \alpha, \beta >0,0\leq t \leq C_j.
+\end{equation}
+We notice from Equation (\ref{eqn:lam_j}) that when $\alpha < 1$, the intensity function is increasing. It is decreasing for $\alpha > 1$ and constant for $\alpha = 1$, which is quite flexible. 
+
+Denote $minimum(C_j)$ to be the minimum censoring time among sampling units. In the presence of $K$ change-points where $0< \tau_1 < \cdots<\tau_K \leq minimum(C_j)$, the time axis is divided into $K+1$ segments. Denote $\tau_0 =0, \tau_{K+1} = C_j$ for ease of notation. The intensity function of a sampling unit  becomes 
+
+\begin{equation*}
+\lambda_j(t;\pmb\theta)=
+ \lambda_{jk}(t;\pmb\theta_k),t\in(\tau_{k-1},\tau_k], k = 1, 2, \cdots,K+1, 
+\end{equation*}
+where $\pmb\theta_k = (\alpha_k,\beta_k)$, $\pmb\theta = (\pmb\theta_k,\tau_k;k = 1, \cdots, K+1)$. Denote $\Lambda_{jk}(t)=\Lambda_{jk}(t;\pmb\theta_k)$. Accordingly, the cumulative intensity function is: 
+\begin{equation*}
+\Lambda_j(t;\pmb\theta)=\begin{cases}
+&\Lambda_{j1}(t), t\in(0,\tau_1],\\
+&\sum_{p=1}^{k}\left[ \Lambda_{jp}(\tau_p)-\Lambda_{jp}(\tau_{p-1})\right]
+ +\Lambda_{j,k+1}(t)-\Lambda_{j,k+1}(\tau_k), t\in(\tau_{k},\tau_{k+1}], 
+\end{cases} 
+\end{equation*}
+$ k = 1, \cdots,K.$ Then the likelihood for all the sampling units is
+\begin{equation}\label{eqn:l_all}
+L(\pmb\theta|\pmb X) = \prod_{j=1}^{m}\left\lbrace \prod\limits_{k=1}^{K+1}\left[ \prod\limits_{i=N_j(\tau_{k-1})+1}^{N_j(\tau_k)} \lambda_{jk}(t_{ji})e^{\Lambda_{jk}(\tau_{k-1})-\Lambda_{jk}(\tau_{k})}\right]  \right\rbrace, 
+\end{equation} 
+where $N_{j}(\tau_k)$ is the total number of events for the unit $j$ in the time interval $[0,\tau_k]$. Note that $C_j$ can vary among units, and all the sampling units share identical  parameter $\pmb\theta = (\alpha_k, \beta_k,\tau_k;k = 1, \cdots, K+1)$. 
+\subsection{Bayesian sampling from the posterior}
+We use MCMC to sample from the posterior distribution and use the posterior means as the parameter estimates. The priors are assumed to be independent among the parameters and uniform priors with large spread can be used as the priors to represent vague prior information. Note that for multiple change-point models, we use $Unif[\tau_{k-1}, minimum(C_j)]$ as the prior for the change-point $\tau_{k}, 0<k\leq K$, where $K$ is the total number of change-points. That is, the  change-point of the previous segment is the lower bound for the prior of the current segment change-point. Denote $f(\pmb \theta)$ to be the joint prior distribution. $L(\pmb\theta|\pmb X)$ is the likelihood function defined in Equation (\ref{eqn:l_all}). Then the joint posterior distribution is: 
+\begin{equation*}
+	f(\pmb \theta|\pmb X) \propto f(\pmb \theta)L(\pmb\theta|\pmb X).
+\end{equation*}
+We use the Gibbs sampler implemented by the R package R2jags \citep{Su2015} to sample from the joint posterior.
+\subsection{Model selection}
+The number of change-points is usually unknown in practice. We fit models with different number of change-points and employ the BF criterion to select the best model. The BF criterion prefers model with larger marginal likelihood.  
+
+The marginal likelihood of a data set $\pmb X$ for a model $M_s$ is defined to be   
+$P(\pmb X|M_s) = \int_{\pmb{\theta}_s}L(\pmb\theta_s |\pmb X, M_s)f(\pmb\theta_s|M_s)d\pmb{\theta}_s$ \citep{Raftery1996}, where $M_s$ is the model (the number of change-points in this article), $\pmb{\theta}_s$ is the parameter vector in $M_s$, $L(\pmb\theta_s |\pmb X, M_s)$ is the likelihood and $f(\pmb\theta_s|M_s)$ is the prior. The marginal likelihood ratio of two models is the BF.  \citet{Raftery1996} proposed several ways to estimate the marginal likelihood. We choose the widely-used harmonic mean estimator calculated by a sample from the posterior distribution:
+\begin{equation}\label{eqn:LXM}
+\hat P(\pmb X|M_s) = (\frac{1}{B_t}\sum\limits_{l=1}^{B_t}\frac{1}{L(\pmb\theta_s^{(l)}|\pmb X, M_s)})^{-1},
+\end{equation}
+where $\left\lbrace \pmb\theta_s^{(l)}, l = 1, 2, \cdots, B_t\right\rbrace $ is a random sample by MCMC from the posterior distribution. 
+
+DIC \citep{Spieg2002} can also be used in model selection. Smaller DIC value indicates better model. The deviance of a model is defined to be $Dev(\pmb\theta|\pmb X) = -2 log[L(\pmb\theta|\pmb X)] + c$, where $c$ is a constant that is not needed for model comparison. Then DIC can be calculated by DIC $ = 2\overline {Dev}(\pmb\theta|\pmb X)-Dev(\hat{\pmb\theta}|\pmb X)$, where $\overline{Dev}(\pmb\theta|\pmb X)$ is the average deviance over the posterior samples and  $Dev(\hat{\pmb\theta}|\pmb X)$ is the deviance at the posterior mean \citep[p. 188]{Gelman2004}. We compare the performance of the  BF and the DIC in detecting the number of change-points in Section \ref{sec:simulation}.
+\section{Simulation Studies}\label{sec:simulation}
+In this section, we perform simulation in estimation phase and model selection phase separately to examine the estimation accuracy and the model selection performance  under various scenarios. We also compare the performance of the BF and the DIC in detecting the number of change-points. We generate data from PLP with change-points based on the distribution of the inter-event times \citep{Klein1984} as shown in Appendix A.
+\subsection{Simulation configurations}
+We consider ten settings with different number of change-points, parameter values, sample sizes, and censoring times. Setting 1 is the reference setting and we can see how the differences among settings affect the estimation and model selection. There are two change-points for Setting 10 and one change-point for  the other settings. The sample size is $m = 80$ for Setting 2 and $m = 40$ for the other settings. The censoring times $C_j$'s are randomly sampled from $Unif[300, 500]$ for Setting 3 and from $Unif[450, 500]$ for the other settings.  
+
+We use uniform distributions as the prior distributions because we do not have much prior information about the parameters. For one-change-point model, we use\\ $\tau\sim Unif[0, minimum(C_j)]$, where $minimum(C_j)$ is the minimum censoring time of all the sampling units. Note that for multiple change-point models, we use $Unif[\tau_{k-1}, minimum(C_j)]$ as the prior for the change-point $\tau_{k}, 0<k\leq K$, where $K$ is the total number of change-points.
+For the PLP parameters, we use $\alpha_k\sim Unif[0,100]$ and $\beta_k\sim Unif[0,100]$. Our preliminary simulation shows that the results are not sensitive to initial values. So initial values are randomly sampled from the priors.
+
+We generate $B = 200$ data sets for each setting. The Gelman-Rubin statistic \citep{Gelman1992} combined with graphical diagnosis are used to check the MCMC convergence. We run 15,000 iterations for each MCMC chain, discard the first 5,000 iterations, and keep every tenth sample. In the estimation phase, we estimate the parameters given the correct number of change-points. We calculate the root mean square error (RMSE) of a parameter $\theta$ by
+$\sqrt{(1/B)\sum\limits_{l=1}^{B}(\widehat{\theta}-\theta)^2}$, the absolute percentage bias  $|$bias (\%)$|$ by $|\widehat{\theta}-\theta|/\theta\times 100\%$, and the coverage probability by the 95\% credible interval (CI). In the model selection phase, we fit models with the number of change-points from zero to three for each data set and use the BF and DIC to select the model. The percentages of data sets with correctly detected number of change-points are recorded. 
+
+\subsection{Simulation results}
+\begin{table}[htp]
+	\label{tab1}
+	\centering
+	\caption{Estimation results of Settings 1-6. The number of objects is $m=80$ for Setting 2, and $m=40$ for other settings in this table.
+		The censoring time is uniformly generated from 300 to 500 for Setting 3, and  from 450 to 500 for other settings in this table. $\tau$ is the change-point.  $\alpha_1$ and $\beta_1$ are 
+		the PLP parameters before the change-point, while $\alpha_2$ and $\beta_2$ are the parameters after the change-point.}
+	\begin{tabular}{ccrrrrr}
+		\hline
+		\multicolumn{1}{c}{Setting} & \multicolumn{1}{c}{Parameter} & \multicolumn{1}{p{2em}}{True value} & \multicolumn{1}{p{4.8em}}{Average of  estimates} & \multicolumn{1}{c}{RMSE} & \multicolumn{1}{c}{$|$Bias (\%)$|$} & \multicolumn{1}{p{4.8em}}{Coverage probability (\%) } \\
+		\hline
+		\multirow{5}[2]{*}{1}
+		& $\tau$			  & 200   & 200.13 & 0.33  & 0.06 & 98.5 \\
+		& $\alpha_1$			          & 1     & 1.00     & 0.03  & 0.27  & 99.5 \\
+		& $\alpha_2$			             & 1     & 1.08  & 0.15  & 8.10   & 99.5 \\
+		& $\beta_1$			                & 5     & 5.29  & 0.90   & 5.80   & 98.5 \\
+		& $\beta_2$			                 & 50    & 53.71 & 25.02 & 7.41  & 100.0 \\
+		
+		\hline
+		\multirow{5}[2]{*}{2} 
+		& $\tau$			      & 200   & 200.03 & 0.59  & 0.01 & 99.5 \\
+		& $\alpha_1$			                & 1     & 1.00     & 0.01  & 0.12  & 99.0 \\
+		& $\alpha_2$			               & 1     & 1.06 & 0.07  & 5.85  & 98.5 \\
+		& $\beta_1$			              & 5     & 5.22  & 0.20   & 4.43  & 99.0 \\
+		& $\beta_2$			              & 50    & 50.28 & 20.35 & 0.56  & 100.0 \\
+		
+		\hline
+		\multirow{5}[2]{*}{3} 				
+						& $\tau$	 & 200   & 201.03 & 8.80 & 0.51  & 95.0 \\			
+						& $\alpha_1$& 1  & 1.00  & 0.06  & 0.47  & 91.5 \\			
+						& $\alpha_2$ & 1  & 1.07  & 0.40  & 6.80 & 97.5 \\			
+						& $\beta_1$	 & 5    & 5.14    & 1.33  & 2.90 & 91.5 \\			
+						& $\beta_2$	& 50    & 58.43 & 28.07 & 16.86  & 97.5 \\					
+						\hline
+		\multirow{5}[2]{*}{4}
+		& $\tau$		     & 200   & 199.93 & 0.42  & 0.03  & 99.0 \\	
+		& $\alpha_1$		             & 1     & 1.01  & 0.06  & 0.76  & 98.5 \\	
+		& $\alpha_2$		      & 1     & 1.03  & 0.04  & 3.42  & 97.0 \\	
+		& $\beta_1$		           & 50    & 41.20  & 9.50   & 17.60  & 86.0 \\	
+		& $\beta_2$		           & 5     & 6.52  & 0.72  & 30.42 & 97.0 \\	
+		
+		\hline
+		\multirow{5}[2]{*}{5} 
+		& $\tau$		      & 200   & 200.1 & 1.18  & 0.05  & 97.0 \\			
+		& $\alpha_1$		                 & 1     & 1.00    & 0.03  & 0.10   & 99.0 \\			
+		& $\alpha_2$		               & 1     & 0.99  & 0.24  & 1.45  & 100.0 \\			
+		& $\beta_1$		                 & 5     & 5.16  & 0.30   & 3.21  & 98.5 \\			
+		& $\beta_2$		                 & 75    & 59.36 & 43.14 & 20.85 & 100.0 \\			
+		
+		\hline
+		\multirow{5}[2]{*}{6} 
+		& $\tau$		 & 200   & 198.67 & 7.45  & 0.67  & 99.5 \\			
+		& $\alpha_1$		                 & 0.75  & 0.78  & 0.08  & 4.59  & 95.0 \\			
+		& $\alpha_2$		           & 1.5   & 1.49  & 0.19  & 0.87  & 95.5 \\			
+		& $\beta_1$		          & 15    & 16.04 & 4.03  & 6.94  & 97.5 \\			
+		& $\beta_2$		      & 45    & 45.19 & 15.09 & 0.43  & 97.5 \\			
+				
+		\hline
+
+	\end{tabular}%
+	\label{tab:simu1}%
+\end{table}%
+
+
+\begin{table}[htbp]
+	\centering
+	\caption{Estimation results of Settings 7-10. The number of objects is $m=40$.
+		The censoring time is uniformly generated from 450 to 500: $c_j\sim Unif[450,500], j = 1, \cdots, m$. Setting 10 has two change-points $\tau_1$ and $\tau_2$. The other settings in this table have one change-point $\tau$. $\alpha_1$ and $\beta_1$ are the PLP parameters before the first change-point $\tau_1$, $\alpha_3$ and $\beta_3$ are the parameters after the second change-point  $\tau_2$, and $\alpha_2$ and $\beta_2$ are the parameters in the middle of the two change-points.}
+	\begin{tabular}{ccrrrrr}
+		\hline
+		\multicolumn{1}{c}{Setting} & \multicolumn{1}{c}{Parameter} & \multicolumn{1}{p{2em}}{True value} & \multicolumn{1}{p{5.1em}}{Average of  estimates} & \multicolumn{1}{c}{RMSE} & \multicolumn{1}{c}{$|$Bias (\%)$|$} & \multicolumn{1}{p{4.8em}}{Coverage probability (\%) } \\       \hline
+\multirow{5}[2]{*}{7} 
+		
+		& $\tau$		      & 200   & 200.08 & 0.23  & 0.04  & 98.0 \\			
+		& $\alpha_1$		               & 1.50   & 1.41  & 0.11  & 6.31  & 89.5 \\			
+		& $\alpha_2$		           & 0.75  & 0.88  & 0.22  & 17.96 & 99.5 \\			
+		& $\beta_1$		          & 15    & 12.88 & 2.45  & 14.10  & 86.5 \\			
+		& $\beta_2$		          & 45    & 54.36 & 29.13 & 20.79 & 100.0 \\			
+		
+		\hline		
+		
+		\multirow{5}[2]{*}{8} 
+		& $\tau$		     & 200   & 197.86 & 10.92 & 1.07  & 99.0 \\			
+		& $\alpha_1$		                 & 0.75  & 0.78  & 0.07  & 4.33  & 95.0 \\			
+		& $\alpha_2$		         & 1.75  & 1.48  & 0.19  & 1.27  & 99.0 \\			
+		& $\beta_1$		         & 15    & 15.85 & 3.78  & 5.65  & 96.5 \\			
+		& $\beta_2$		         & 45    & 44.73 & 14.91 & 0.60   & 98.5 \\			
+\hline
+		\multirow{5}[2]{*}{9} 				
+		& $\tau$		    & 200   & 205.28 & 18.18 & 2.64  & 88.5 \\			
+		& $\alpha_1$& 0.75  & 0.81  & 0.11  & 7.43  & 88.0 \\			
+		& $\alpha_2$ & 1.25  & 1.44  & 0.44  & 14.87 & 89.5 \\			
+		& $\beta_1$	 & 15    & 17.00    & 4.51  & 13.34 & 88.5 \\			
+		& $\beta_2$	& 45    & 53.05 & 24.11 & 17.90  & 94.0 \\					
+		\hline
+
+		\multirow{8}[2]{*}{10} 
+		& $\tau_1$	     & 100   & 107.72 & 27.74 & 7.72  & 85.0 \\		
+		& $\tau_2$	                 & 350   & 351.59 & 12.77 & 0.45  & 94.0 \\		
+		& $\alpha_1$	                 & 1.5   & 1.44  & 0.17  & 3.75  & 78.0 \\		
+		& $\alpha_2$	        & 0.75  & 0.88  & 0.31  & 17.15 & 78.0 \\		
+		& $\alpha_3$	                 & 2.5   & 2.47  & 0.34  & 1.06  & 81.5 \\		
+		& $\beta_1$	         & 15    & 14.18 & 2.66  & 5.45  & 84.5 \\		
+		& $\beta_2$	         & 5     & 11.99 & 15.97 & 139.85 & 77.0 \\		
+		& $\beta_3$	            & 75    & 72.29 & 16.28 & 3.62  & 81.5 \\		
+		
+		\hline
+	\end{tabular}%
+	\label{tab:simu2}%
+\end{table}%
+
+
+\begin{table}[htbp]
+	\centering
+	\caption{The percentages of data sets with correctly identified number of change-points by BF and DIC. Four models with number of change-points from zero to three are fit for each data set.}
+	\begin{tabular}{p{5.235em}rrrrrrrrrr}
+		\hline
+		Setting & 1 &2 & 3 & 4 & 5     & 6     & 7     & 8     & 9&10 \\
+		\hline
+		P(BF) (\%) & 100.0   & 100.0  & 100.0  & 100.0   & 100.0   & 100.0   & 100.0   & 100.0   & 100.0   & 69.0 \\
+		P(DIC) (\%) & 41.0   & 42.5  & 46.5  & 45.5   & 41.0     & 40.5   & 41.5   & 40.5 & 41.0   & 49.0 \\
+		\hline
+	\end{tabular}%
+	\label{tab:simu3}%
+\end{table}%
+
+The estimation results from the estimation phase are shown in Tables \ref{tab:simu1}-\ref{tab:simu2}. The PLP parameters $\alpha_1$ and $\alpha_2$ are equal to one in Settings 1-5, so the intensity functions are constanct piecewise. Comparing with Setting 1, the RMSE and $|$Bias (\%)$|$ decrease slighly with larger sample size (Setting 2), and increase slightly with larger variation in censoring time (Setting 3). The estimation is accurate with small RMSE, $|$Bias (\%)$|$ and high coverage probability overall. 
+
+Table \ref{tab:simu3} shows the percentages of data sets with the correctly detected number of change-points from the model selection phase. The BF outperforms DIC in all the settings. The BF performs well especially when there is one change-point. 
+
+In summary, our method estimates the change-points and PLP parameters accurately under different settings, and the BF outperforms DIC in detecting the number of change-points. The computation details are in Appendix B. 
+\section{Analysis of Example}\label{sec:data_analysis}
+The method in Section \ref{sec:models} is applied to the coal mining data in UK obtained from \url{https://archive.is/VM86o}. This data recorded the coal mining accidents of 24 location units in UK from 1 Jan 1850 to 31 December 1901. There were 342 events in total with the censoring time to be 31 December 1901. Each location had 14.25 events on average with the standard deviation of 11.43. Several studies such as \citet{Raftery1986, Carlin1992, Green1995} analyzed the UK coal mining data and detected the change-points in the disaster rate treating UK as one sampling unit.  We treate different locations as different sampling units and assume the counting process to be a PLP instead of an NHPP with constant piecewise intensity. 
+
+We use the uniform distributions as the prior distributions of parameters. For one-change-point model, $\tau\sim Unif[0, 18126]$, where 18126 was the total length of the study in days. For multiple change-point models, we use $Unif[\tau_{k-1}, 18126]$ as the prior for the change-point $\tau_{k}, 0<k\leq K$, where $K$ is the total number of change-points. For the PLP parameters, $\alpha_k\sim Unif(0, 100)$ and $\beta_k \sim Unif(0, 2000), k = 1, \cdots, K$.  The initial values are randomly sampled from the prior distributions. For the MCMC chain, we run 100,000 iterations, set the ``burn-in'' to be 10,000 iterations, and thin the simulations after ``burn-in'' by keeping every tenth sample. The MCMC chains coverge and mixe well based on the Gelman-Rubin statistics and the graphical diagnosis. 
+
+\citet{Ruggeri2005} suggested that one or two change-points were most probable for this data set. We fit models with zero to three change-points. The marginial likelihood $P(\pmb X|M)$ is estimated by Equation (\ref{eqn:LXM}). $-log_{10}(P(\pmb X|M))$ and the DIC of these four models are shown in Table \ref{tab:data1}. The one-change-point model is the best under both criteria. Figure \ref{fig:coal_data}(a) shows the cumulative event plots of the 24 locations and Figure \ref{fig:coal_data}(b) shows the estimated cumulative intensity functions of the models with zero to three change-points.
+
+
+
+ \begin{table}[htbp]
+   \centering
+   \label{tbcoal}
+   \caption{Model selection using BF and DIC}
+     \begin{tabular}{crrrr}
+         \hline
+     No. of change-points & 0     & 1     & 2     & 3 \\
+         \hline
+     $-log_{10}(P(\pmb X|M))$ & \multicolumn{1}{r}{23751.0} & \multicolumn{1}{r}{12547.0} & \multicolumn{1}{r}{13479.0} & \multicolumn{1}{r}{18751.0} \\
+     DIC   & 1678.4 & 1667.8 & 1669.8 & 1673.2 \\
+         \hline
+     \end{tabular}%
+   \label{tab:data1}%
+ \end{table}%
+
+ 
+ 
+ \begin{figure}
+
+     \centering
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \includegraphics[width=\textwidth,height=0.5\textheight]{figures//coal_data1.eps}
+         \caption{}
+         \label{}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \includegraphics[width=\textwidth,height=0.5\textheight]{figures//coal_data2.eps}
+         \caption{}
+         \label{}
+     \end{subfigure}
+         \caption{The results of coal mining data: (a) The cumulative event plot. The crosses mark the event times. The solid line shows the estimated cumulative intensity function of the one-change-point model with the change-point marked by a triangle. (b) The estimated cumulative intensity functions of the four models with the change-points marked.}
+        \label{fig:coal_data}
+\end{figure}
+
+Table \ref{tab:esti} shows the posterior means, modes, standard deviations (SD) and 95\% CIs of the parameters for the one-change-point model. The posterior mean estimate of the change-point is at December 19 1885 and the posterior mode estimate is at September 16 1885. The coal mining disaster rate declines slightly after the change-point. This change-point is close to the result in \citet{Raftery1986}. Figures \ref{fig:poster2}-\ref{fig:poster1} show the posterior distributions of each parameter. The posterior distribution of the change-point is multi-modal. There are much fewer events after the change-point. So the SDs of the distributions for the PLP parameters after the change-point are much larger.  
+
+Overall, the result from the coal mining data is reasonable and consistent with previous research. Note that the censoring times are the same across locations in this data set. However, the methodology in this paper is developed for a general situation when the censoring times can vary among units.
+\begin{table}[htbp] 
+	\centering
+	\caption{The posterior summaries of the parameters for the one-change-point model. $\tau$ is the change-point.  $\alpha_1$ and $\beta_1$ are 
+			the PLP parameters before the change-point, while $\alpha_2$ and $\beta_2$ are the parameters after the change-point.}
+	\begin{tabular}{ccccc}
+		\hline
+		Parameter & Mean & Mode & SD & 95\% CI \\
+		\hline
+		$\tau$   & 1885-12-19 & 1885-09-16 & 134.88 (weeks) & [1882-02-17,1890-08-26] \\
+		$\alpha_1$ & 0.94	& 0.95 &	0.06  & [0.83,1.05] \\
+		$\alpha_2$ & 1.11	& 1.11	& 0.29  & [0.58,1.60] \\
+		$\beta_1$ & 11.44	& 11.46 &	1.84 & [8.04,15.0] \\
+	$	\beta_2$ & 41.26	& 41.14 &	23.05 & [3.25,78.5] \\
+		\hline
+	\end{tabular}%
+	\label{tab:esti}%
+\end{table}%
+ \begin{figure}
+  
+   \centering
+     \includegraphics[width=\textwidth,height=0.5\textheight]{figures//poster2.eps}    
+      \caption{The posterior distribution of the change-point $\tau$ for the one-change-point model.}
+      \label{fig:poster2}
+ \end{figure}
+  \begin{figure}
+
+    \centering
+      \includegraphics[width=\textwidth,height=0.5\textheight]{figures//poster1.eps}
+          \caption{The posterior distributions of the PLP parameters for the one-change-point model. $\alpha_1$ and $\beta_1$ are 
+          			the PLP parameters before the change-point, while $\alpha_2$ and $\beta_2$ are the parameters after the change-point.}
+          			\label{fig:poster1}
+  \end{figure}
+%  \begin{figure}
+%    \caption{Posterior density plot of change point $\tau$}
+%    \centering
+%      \includegraphics[width=\textwidth,height=0.3\textheight]{figures//poster1.eps}\label{fig:poster1}
+%  \end{figure}
+%  \begin{figure}[htp]
+%    \centering
+%    \label{fig:coal1}\caption{The posterior histograms of the power law process parameters.}
+%  
+%    \subfloat[]{\label{figur:1}\includegraphics[width=60mm,height=60mm]{figures//poster11.eps}}
+%    \subfloat[]{\label{figur:2}\includegraphics[width=60mm,height=60mm]{figures//poster12.eps}}\\
+%    \subfloat[]{\label{figur:3}\includegraphics[width=60mm,height=60mm]{figures//poster13.eps}}
+%        \subfloat[]{\label{figur:4}\includegraphics[width=60mm,height=60mm]{figures//poster14.eps}}
+% \end{figure}
+ 
+\section{Conclusion Remarks}\label{sec:discussion}
+Change-points detection in the recurrent-event context can be practically useful in many fields such as travel safety, medical studies, reliability analysis and environmental studies.  This article proposes a Bayesian framework to detect the number and values of change-points in the recurrent-event context with multiple sampling units. The censoring times can vary among units. The counting process is assumed to be a PLP, which is flexible and widely used.  We use the MCMC method to sample from the posterior, employ the BF for model selection, and compare the model selection performance of BF and DIC. 
+
+The simulation studies show that the proposed methodology estimates the change-points and PLP parameters accurately, and the BF outperformes DIC in detecting the number of change-points under different settings.  The BF performs well especially when there is one change-point. The results from the coal-mining disaster data in UK is also reasonable and consistent with previous studies.
+
+In this article, the models with different number of change-points are fit and model selection by BF is conducted thereafter. The performance of the BF might be worse when there are more change-points.  Model selection in change-points detection can be challenging and inefficient in practice \citep{Ruggieri2013}. Our future forcus will be on automatic multiple change-points detection. We would like to develop multiple change-points detection method without relying on model selection, possibly by extending the work in \citet{Ruggieri2013}. 
+
+
+\section{Acknowledgments}
+We would like to thank Dr. Coelho-Barros, the coauthor of \citet{Achcar2016} who provided the R2jags code for their paper. We would also like to thank Mike Cammilleri, the Director of IT Office at University of Wisconsin-Madison for providing support in high performance computing.
+\bibliographystyle{apalike}
+\bibliography{./ref/refall}
+\section*{Appendices}
+
+\subsection*{Appendix A. Data generation from a PLP}\label{sec:plp_data}
+Denote the previous event times to be $T_0=t_0=0, ~T_1=t_1, ~\cdots, ~T_{i}=t_{i}$. Given the cumulative intensity function $\Lambda(t)$ of a PLP, The inter-event time $X_i = T_i - T_{i-1}$ has the cumulative density function (CDF) as follows: 
+\begin{equation}\label{eqn:Ft}
+\begin{aligned}
+F_{i}(x)&=Pr\left[ X_{i}\leq x|T_p=t_p,~p=0,1, \cdots, i-1\right] \\
+&=1-exp\left[ \Lambda(t_{i-1})-\Lambda(t_{i-1}+x)\right],
+\end{aligned}
+\end{equation}
+Initializing $i=0, t_i=0$, the data from a PLP could be generated as follows: 
+\begin{enumerate}[Step 1:]
+	\item Randomly draw $x_{i+1}$ from the distribution with CDF $F_{i+1}$;
+	\item Set $t_{i+1}=t_{i}+x_{i+1}$;
+	\item Set $i=i+1$, return to Step 1.
+\end{enumerate} 
+Repeating the above procedure until $t_{i+1}>C_j$ yields the ordered event times $t_1, \cdots, t_{n_j}$ for one sampling unit. We follow the same procedure to generate the event times for multiple units. 
+\subsection*{Appendix B. Computation}\label{sec:code}
+We note that the data sets for simulation are generated in MATLAB R2016a. All the other analysis are run in R. The simulations are run in parallel on a high performance cluster, with total cluster resources of 624 cores and 1.7 TB of RAM available. The complete code and the cleaned data set used in Section \ref{sec:data_analysis} are available online \footnote {
+	 \url{https://github.com/jerryliu20d/Multiple-Change-Points-Detection-Assuming\\
+	 	-Power-Law-Process-in-the-Recurrent-Event-Context}}. 
+
+\end{document}
+
